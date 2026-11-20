@@ -76,7 +76,7 @@ for (const form of document.querySelectorAll('.consulta')) {
     }
 
     const rotulo = botao.textContent;
-    const anterior = consultas.get(agente)?.pergunta;
+    const consultaAnterior = consultas.get(agente);
     botao.disabled = true;
     botao.textContent = 'Consultando…';
     form.setAttribute('aria-busy', 'true');
@@ -86,7 +86,11 @@ for (const form of document.querySelectorAll('.consulta')) {
       const resposta = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agente, pergunta, anterior }),
+        body: JSON.stringify({
+          agente, pergunta,
+          anterior: consultaAnterior?.pergunta,
+          respostaAnterior: consultaAnterior?.resposta
+        }),
         signal: AbortSignal.timeout(35000)
       });
       const dados = await resposta.json().catch(() => ({}));
@@ -107,7 +111,15 @@ for (const form of document.querySelectorAll('.consulta')) {
         const trecho = document.createElement('div');
         trecho.className = 'trecho';
         const link = document.createElement('a');
-        titulo.textContent = evidencia.titulo + ' · ' + evidencia.id;
+        if (evidencia.estado && evidencia.documento) {
+          const estado = document.createElement('span');
+          estado.className = 'estado-fonte';
+          estado.dataset.estado = evidencia.estado.toLowerCase();
+          estado.textContent = evidencia.estado === 'Revogada' ? 'Revogada · histórica' : evidencia.estado;
+          titulo.append(evidencia.documento + ' · ' + evidencia.id + ' ', estado);
+        } else {
+          titulo.textContent = evidencia.titulo + ' · ' + evidencia.id;
+        }
         renderizarMarkdown(trecho, evidencia.texto);
         link.textContent = 'Abrir documento no Drive';
         link.href = evidencia.url;

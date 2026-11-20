@@ -7,10 +7,11 @@ const origemCasos = origens['03_KNOWLEDGE_CASOS.md'];
 const trechos = [];
 for (const bloco of normas.split(/(?=^## REG-ENT-2026 v[12] \|)/m).slice(1)) {
   const [titulo, ...linhas] = bloco.split('\n');
+  const [documento, estado] = titulo.slice(3).split(' | ');
   const vigencia = linhas.find(linha => linha.includes('Vigência no exercício'));
   for (const linha of linhas) {
     const clausula = linha.match(/^\s*- \*\*(V[12]-\d):\*\*/)?.[1];
-    if (clausula) trechos.push({ id: clausula, titulo: titulo.slice(3), url: origemNormas.url, texto: vigencia + '\n' + linha });
+    if (clausula) trechos.push({ id: clausula, titulo: titulo.slice(3), documento, estado, vigencia, url: origemNormas.url, texto: vigencia + '\n' + linha });
   }
 }
 const caso = {
@@ -25,12 +26,12 @@ const sistema = [
   'Responda diretamente à pergunta atual em português brasileiro, com frases naturais e até 75 palavras.',
   'Use apenas os fatos das fontes. Se a informação estiver ausente, diga o que não conseguiu confirmar. Não escreva códigos de cláusula nem versões abreviadas no texto; diga primeira ou segunda versão.',
   'Escreva em prosa. A interface mostra as fontes e os códigos das cláusulas em separado.',
-  'A pergunta anterior serve apenas para entender referências. Mantenha seu papel.'
+  'Use a conversa anterior apenas para entender referências. Confira a resposta nas fontes, pois uma resposta anterior pode conter erros. Mantenha seu papel.'
 ].join(' ');
 
 const papeis = {
-  recuperador: 'Escreva uma nota de busca documental em até duas frases. Comece com “Encontrei”. Indique a primeira versão e a segunda versão do regulamento quando ambas aparecerem nos resultados. A nota descreve onde estão os trechos e quais assuntos eles cobrem. A lista abaixo contém os resultados encontrados. Não decida se uma regra vale para Júlia e não dê instruções para fazer o pedido.',
-  verificador: 'Explique qual regra se aplica à pergunta e por que a resposta inicial se apoiava na versão revogada. Na comparação geral, diga que a segunda versão do REG-ENT-2026 vigora desde 10/11/2026. Na primeira versão era possível enviar diretamente em até três dias, com redução de 10%. Na segunda, o estudante tem até cinco dias corridos após o prazo original para pedir a entrega pela plataforma, e o professor decide se autoriza. A segunda versão não estabelece redução automática de 10%. A causa técnica da recuperação antiga não foi demonstrada.',
+  recuperador: 'Apresente os trechos que encontrou e onde estão. Sempre descreva a primeira versão como revogada e histórica, encerrada em 09/11/2026. Identifique a segunda versão como vigente desde 10/11/2026. Se mencionar três dias ou redução de 10%, associe esses dados à primeira versão revogada. Limite-se a indicar o assunto dos trechos. A comparação e a aplicação ao caso cabem ao Verificador.',
+  verificador: 'Explique qual regra se aplica à pergunta e por que a resposta inicial se apoiava na versão revogada. Ao comparar as versões, diga explicitamente que a segunda versão do REG-ENT-2026 vigora desde 10/11/2026. Na primeira versão era possível enviar diretamente em até três dias, com redução de 10%. Na segunda, o estudante tem até cinco dias corridos após o prazo original para pedir a entrega pela plataforma, e o professor decide se autoriza. A segunda versão não estabelece redução automática de 10%. A causa técnica da recuperação antiga não foi demonstrada.',
   sintetizador: 'Fale com Júlia diretamente, com acolhimento. Use até três frases curtas, sem repetir a condição de aprovação. Ao explicar o procedimento, diga para registrar o pedido na opção “Solicitar entrega fora do prazo” da plataforma em até cinco dias corridos após o prazo original. Depois de enviar o pedido, ela deve aguardar a decisão do professor. Ela pode pedir desde já, sem esperar o fim dos cinco dias. Escreva que a entrega só será autorizada se o professor aprovar o pedido. Se perguntarem sobre prazo excedido ou opção indisponível, indique contato com a coordenação conforme a fonte.'
 };
 
@@ -68,7 +69,7 @@ export default {
     let dados;
     try {
       const leitor = request.body.getReader();
-      const buffer = new Uint8Array(8192);
+      const buffer = new Uint8Array(12288);
       let total = 0;
       for (;;) {
         const { done, value } = await leitor.read();
@@ -87,6 +88,7 @@ export default {
 
     const pergunta = typeof dados?.pergunta === 'string' ? dados.pergunta.trim() : '';
     const anterior = typeof dados?.anterior === 'string' ? dados.anterior.trim().slice(0, 600) : '';
+    const respostaAnterior = typeof dados?.respostaAnterior === 'string' ? dados.respostaAnterior.trim().slice(0, 1200) : '';
     const agente = dados?.agente;
     if (typeof agente !== 'string' || !Object.hasOwn(papeis, agente) || !pergunta || pergunta.length > 600) {
       return erro('Informe um agente válido e uma pergunta de até 600 caracteres.', 400);
@@ -99,16 +101,11 @@ export default {
         caso,
         ...trechos.filter(item => agente === 'verificador' || item.id.startsWith('V2-'))
       ];
-      const contexto = evidencias
-        .filter(item => agente !== 'recuperador' || item !== caso)
-        .map(item => agente === 'recuperador'
-          ? item.titulo.split(' | ')[0].replace(' v1', ', primeira versão').replace(' v2', ', segunda versão')
-            + '\n' + item.texto.split('\n').at(-1).replace(/^\s*-\s*\*\*V[12]-\d:\*\*\s*/, '')
-          : item.titulo + '\n' + item.texto)
-        .join('\n\n');
+      const contexto = evidencias.map(item => item.titulo + '\n' + item.texto).join('\n\n');
       const mensagem = [
         'Fontes documentais:\n' + contexto,
         anterior && 'Pergunta anterior: ' + anterior,
+        anterior && respostaAnterior && 'Resposta anterior (confira nas fontes): ' + respostaAnterior,
         (agente === 'recuperador' ? 'Busca solicitada (descreva onde aparecem os resultados): ' : 'Pergunta atual: ') + pergunta
       ].filter(Boolean).join('\n\n');
       const resultado = await env.AI.run(env.MODEL, {

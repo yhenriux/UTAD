@@ -50,6 +50,22 @@ fieldset { margin: 0 0 1rem; padding: .85rem; border: 1px solid var(--linha); bo
 .pergunta-enviada { border-left: 3px solid #54779d; padding: .65rem .85rem; background: #f2f5f9; }
 .resposta > :first-child { margin-top: 0; }
 .evidencias { border-top: 1px solid var(--linha); margin-top: 1.25rem; }
+.aviso-historico {
+  padding: .75rem .9rem;
+  border-left: 3px solid #97600b;
+  background: #fff5df;
+  color: #613d05;
+}
+.estado-fonte {
+  display: inline-block;
+  padding: .1rem .45rem;
+  border-radius: .3rem;
+  font-size: .82rem;
+  font-weight: 650;
+  background: #e4f2ea;
+  color: #1e5637;
+}
+.estado-fonte[data-estado="revogada"] { background: #fff0ce; color: #69450b; }
 .status[data-estado="erro"] { color: #8e2b27; }
 .status[data-estado="carregando"] { font-style: italic; }
 .resultado { border-top: 1px solid var(--linha); margin-top: 1.25rem; }
