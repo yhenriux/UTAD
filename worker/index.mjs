@@ -30,7 +30,7 @@ const sistema = [
 ].join(' ');
 
 const papeis = {
-  recuperador: 'Apresente os trechos que encontrou e onde estão. Sempre descreva a primeira versão como revogada e histórica, encerrada em 09/11/2026. Identifique a segunda versão como vigente desde 10/11/2026. Se mencionar três dias ou redução de 10%, associe esses dados à primeira versão revogada. Limite-se a indicar o assunto dos trechos. A comparação e a aplicação ao caso cabem ao Verificador.',
+  recuperador: 'Em duas frases curtas, liste onde estão os temas pesquisados. Para dúvidas sobre a regra atual, remeta ao Verificador. Sempre descreva a primeira versão como revogada e histórica, encerrada em 09/11/2026. Identifique a segunda versão como vigente desde 10/11/2026. Se mencionar três dias ou redução de 10%, associe esses dados à primeira versão revogada. Limite-se a indicar o assunto dos trechos. Encerre a resposta após indicar as fontes. Não explique o procedimento, nem por que a regra mudou.',
   verificador: 'Explique qual regra se aplica à pergunta e por que a resposta inicial se apoiava na versão revogada. Ao comparar as versões, diga explicitamente que a segunda versão do REG-ENT-2026 vigora desde 10/11/2026. Na primeira versão era possível enviar diretamente em até três dias, com redução de 10%. Na segunda, o estudante tem até cinco dias corridos após o prazo original para pedir a entrega pela plataforma, e o professor decide se autoriza. A segunda versão não estabelece redução automática de 10%. A causa técnica da recuperação antiga não foi demonstrada.',
   sintetizador: 'Fale com Júlia diretamente, com acolhimento. Use até três frases curtas, sem repetir a condição de aprovação. Ao explicar o procedimento, diga para registrar o pedido na opção “Solicitar entrega fora do prazo” da plataforma em até cinco dias corridos após o prazo original. Depois de enviar o pedido, ela deve aguardar a decisão do professor. Ela pode pedir desde já, sem esperar o fim dos cinco dias. Escreva que a entrega só será autorizada se o professor aprovar o pedido. Se perguntarem sobre prazo excedido ou opção indisponível, indique contato com a coordenação conforme a fonte.'
 };
@@ -42,6 +42,9 @@ function termos(texto) {
 function recuperar(pergunta) {
   const consulta = new Set(termos(pergunta));
   const pontuar = item => termos(item.id + ' ' + item.texto).filter(termo => consulta.has(termo)).length;
+  const percentuais = [...consulta].filter(termo => termo.endsWith('%'));
+  const correspondencias = trechos.filter(item => percentuais.some(termo => item.texto.includes(termo)));
+  if (correspondencias.length) return correspondencias;
   return [caso, ...['V1-', 'V2-'].flatMap(versao => trechos
     .filter(item => item.id.startsWith(versao))
     .sort((a, b) => pontuar(b) - pontuar(a))
@@ -106,7 +109,8 @@ export default {
         'Fontes documentais:\n' + contexto,
         anterior && 'Pergunta anterior: ' + anterior,
         anterior && respostaAnterior && 'Resposta anterior (confira nas fontes): ' + respostaAnterior,
-        (agente === 'recuperador' ? 'Busca solicitada (descreva onde aparecem os resultados): ' : 'Pergunta atual: ') + pergunta
+        (agente === 'recuperador' ? 'Busca solicitada (descreva onde aparecem os resultados): ' : 'Pergunta atual: ') + pergunta,
+        agente === 'verificador' && 'Na v2, use a expressão “prazo para solicitar a entrega”. Os cinco dias são para enviar o pedido. A entrega só pode ocorrer após autorização do professor. Explique também a diferença com a v1 se a pergunta pedir uma comparação.'
       ].filter(Boolean).join('\n\n');
       const resultado = await env.AI.run(env.MODEL, {
         messages: [
