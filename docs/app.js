@@ -4,6 +4,46 @@ const secoes = [...document.querySelectorAll('main section')];
 const navegacao = [...document.querySelectorAll('nav a')];
 const consultas = new Map();
 
+function renderizarMarkdown(destino, texto) {
+  destino.replaceChildren();
+  function inserir(elemento, linha) {
+    const marcas = /`([^`\n]+)`|\*\*([^*\n]+)\*\*|__([^_\n]+)__|\*([^*\n]+)\*|_([^_\n]+)_/g;
+    let inicio = 0;
+    for (const marca of linha.matchAll(marcas)) {
+      elemento.append(linha.slice(inicio, marca.index));
+      const tag = document.createElement(marca[1] ? 'code' : marca[2] || marca[3] ? 'strong' : 'em');
+      tag.textContent = marca[1] ?? marca[2] ?? marca[3] ?? marca[4] ?? marca[5];
+      elemento.append(tag);
+      inicio = marca.index + marca[0].length;
+    }
+    elemento.append(linha.slice(inicio));
+  }
+
+  let bloco;
+  for (const linha of texto.trim().split(/\r?\n/)) {
+    if (!linha.trim()) {
+      bloco = undefined;
+      continue;
+    }
+    const lista = linha.match(/^\s*(?:([-+*])|\d+[.)])\s+(.+)$/);
+    const titulo = linha.match(/^#{1,6}\s+(.+)$/);
+    const citacao = linha.match(/^>\s?(.*)$/);
+    const tipo = lista ? (lista[1] ? 'ul' : 'ol') : titulo ? 'h4' : citacao ? 'blockquote' : 'p';
+    if (bloco?.localName !== tipo || titulo) {
+      bloco = document.createElement(tipo);
+      destino.append(bloco);
+    }
+    if (lista) {
+      const item = document.createElement('li');
+      inserir(item, lista[2]);
+      bloco.append(item);
+    } else {
+      if (bloco.hasChildNodes()) bloco.append(document.createElement('br'));
+      inserir(bloco, titulo?.[1] ?? citacao?.[1] ?? linha);
+    }
+  }
+}
+
 function mostrarEtapa(focar) {
   const id = window.location.hash.slice(1);
   const ativa = secoes.find(secao => secao.id === id) ?? secoes[0];
@@ -35,22 +75,28 @@ for (const form of document.querySelectorAll('.consulta')) {
       return;
     }
 
+    const rotulo = botao.textContent;
+    const anterior = consultas.get(agente)?.pergunta;
     botao.disabled = true;
-    status.textContent = 'Consultando o agente…';
-    resultado.hidden = true;
+    botao.textContent = 'Consultando…';
+    form.setAttribute('aria-busy', 'true');
+    status.dataset.estado = 'carregando';
+    status.textContent = 'Buscando nas fontes e preparando a resposta…';
     try {
       const resposta = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agente, pergunta }),
+        body: JSON.stringify({ agente, pergunta, anterior }),
         signal: AbortSignal.timeout(35000)
       });
       const dados = await resposta.json().catch(() => ({}));
       if (!resposta.ok || !dados.resposta) {
+        status.dataset.estado = 'erro';
         status.textContent = dados.erro ?? 'O serviço de IA está indisponível. Tente novamente.';
         return;
       }
-      resultado.querySelector('.resposta').textContent = dados.resposta;
+      resultado.querySelector('.pergunta-enviada').textContent = pergunta;
+      renderizarMarkdown(resultado.querySelector('.resposta'), dados.resposta);
       resultado.querySelector('.modelo').textContent = 'Workers AI · ' + dados.modelo;
       const fontes = resultado.querySelector('.fontes');
       fontes.replaceChildren();
@@ -58,10 +104,11 @@ for (const form of document.querySelectorAll('.consulta')) {
         const item = document.createElement('li');
         const detalhes = document.createElement('details');
         const titulo = document.createElement('summary');
-        const trecho = document.createElement('p');
+        const trecho = document.createElement('div');
+        trecho.className = 'trecho';
         const link = document.createElement('a');
         titulo.textContent = evidencia.titulo + ' · ' + evidencia.id;
-        trecho.textContent = evidencia.texto.replaceAll('**', '').replaceAll('`', '');
+        renderizarMarkdown(trecho, evidencia.texto);
         link.textContent = 'Abrir documento no Drive';
         link.href = evidencia.url;
         link.target = '_blank';
@@ -72,10 +119,16 @@ for (const form of document.querySelectorAll('.consulta')) {
       }
       consultas.set(agente, { pergunta, ...dados });
       resultado.hidden = false;
-      status.textContent = 'Resposta recebida.';
-    } catch {
-      status.textContent = 'Falha ao conectar ao serviço de IA. Tente novamente.';
+      status.dataset.estado = 'pronto';
+      status.textContent = 'Resposta pronta. Você pode continuar a conversa com outra pergunta.';
+    } catch (erro) {
+      status.dataset.estado = 'erro';
+      status.textContent = erro.name === 'TimeoutError'
+        ? 'O agente demorou a responder. Envie a pergunta novamente.'
+        : 'Não foi possível conectar ao agente. Confira sua conexão e tente novamente.';
     } finally {
+      form.removeAttribute('aria-busy');
+      botao.textContent = rotulo;
       botao.disabled = false;
     }
   });

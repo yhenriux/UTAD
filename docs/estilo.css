@@ -46,7 +46,12 @@ fieldset { margin: 0 0 1rem; padding: .85rem; border: 1px solid var(--linha); bo
 .opcao { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .4rem; font-weight: 400; }
 .status, .modelo { color: #425771; font-size: .9rem; overflow-wrap: anywhere; }
 .status:empty { margin: 0; }
-.resposta, details p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.resposta, .trecho, .pergunta-enviada { overflow-wrap: anywhere; }
+.pergunta-enviada { border-left: 3px solid #54779d; padding: .65rem .85rem; background: #f2f5f9; }
+.resposta > :first-child { margin-top: 0; }
+.evidencias { border-top: 1px solid var(--linha); margin-top: 1.25rem; }
+.status[data-estado="erro"] { color: #8e2b27; }
+.status[data-estado="carregando"] { font-style: italic; }
 .resultado { border-top: 1px solid var(--linha); margin-top: 1.25rem; }
 .fontes { display: grid; gap: .6rem; list-style: none; padding: 0; }
 details { border: 1px solid var(--linha); padding: .6rem .75rem; border-radius: .4rem; }

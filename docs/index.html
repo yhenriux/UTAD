@@ -50,10 +50,13 @@
         </form>
         <div class="resultado" hidden>
           <h3>Resposta do agente</h3>
-          <p class="resposta"></p>
+          <p class="pergunta-enviada"></p>
+          <div class="resposta"></div>
           <p class="modelo"></p>
-          <h3>Evidências enviadas ao modelo</h3>
-          <ul class="fontes"></ul>
+          <div class="evidencias">
+            <h3>Fontes e evidências</h3>
+            <ul class="fontes"></ul>
+          </div>
         </div>
         <a href="#verificador" class="seguinte">Continuar para Verificador</a>
       </section>
@@ -61,16 +64,19 @@
         <h2 id="titulo-verificador" tabindex="-1">Verificador</h2>
         <form class="consulta" data-agente="verificador">
           <label for="pergunta-verificador">Pergunta para o Verificador</label>
-          <textarea id="pergunta-verificador" name="pergunta" rows="3" maxlength="600" required>O que mudou entre a v1 e a v2 e qual versão se aplica ao caso?</textarea>
+          <textarea id="pergunta-verificador" name="pergunta" rows="3" maxlength="600" required>Qual versão se aplica ao caso de Júlia e o que mudou no procedimento?</textarea>
           <button type="submit">Consultar Verificador</button>
           <p class="status" role="status"></p>
         </form>
         <div class="resultado" hidden>
           <h3>Resposta do agente</h3>
-          <p class="resposta"></p>
+          <p class="pergunta-enviada"></p>
+          <div class="resposta"></div>
           <p class="modelo"></p>
-          <h3>Evidências enviadas ao modelo</h3>
-          <ul class="fontes"></ul>
+          <div class="evidencias">
+            <h3>Fontes e evidências</h3>
+            <ul class="fontes"></ul>
+          </div>
         </div>
         <a href="#sintetizador" class="seguinte">Continuar para Sintetizador</a>
       </section>
@@ -84,10 +90,13 @@
         </form>
         <div class="resultado" hidden>
           <h3>Resposta do agente</h3>
-          <p class="resposta"></p>
+          <p class="pergunta-enviada"></p>
+          <div class="resposta"></div>
           <p class="modelo"></p>
-          <h3>Evidências enviadas ao modelo</h3>
-          <ul class="fontes"></ul>
+          <div class="evidencias">
+            <h3>Fontes e evidências</h3>
+            <ul class="fontes"></ul>
+          </div>
         </div>
         <a href="#decisao" class="seguinte">Continuar para decisão humana</a>
       </section>
