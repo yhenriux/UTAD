@@ -104,13 +104,18 @@ export default {
         caso,
         ...trechos.filter(item => agente === 'verificador' || item.id.startsWith('V2-'))
       ];
-      const contexto = evidencias.map(item => item.titulo + '\n' + item.texto).join('\n\n');
+      const contexto = evidencias.map(item => {
+        const texto = agente === 'recuperador'
+          ? item.texto.replace(/\*\*V[12]-\d:\*\*\s*/g, '').replace(/ conforme V[12]-\d/g, '')
+          : item.texto;
+        return item.titulo + '\n' + texto;
+      }).join('\n\n');
       const mensagem = [
         'Fontes documentais:\n' + contexto,
         anterior && 'Pergunta anterior: ' + anterior,
         anterior && respostaAnterior && 'Resposta anterior (confira nas fontes): ' + respostaAnterior,
         (agente === 'recuperador' ? 'Busca solicitada (descreva onde aparecem os resultados): ' : 'Pergunta atual: ') + pergunta,
-        agente === 'verificador' && 'Na v2, use a expressão “prazo para solicitar a entrega”. Os cinco dias são para enviar o pedido. A entrega só pode ocorrer após autorização do professor. Explique também a diferença com a v1 se a pergunta pedir uma comparação.'
+        agente === 'verificador' && 'Responda em até três frases curtas, sem repetir. Se o assunto é a redução na nota, responda apenas sobre a redução. Se comparar o procedimento, diga: na v1 era possível entregar diretamente em até três dias; na v2, em vigor desde 10/11/2026, o pedido deve ser feito na plataforma em até cinco dias corridos e o professor decide. O pedido deve ser enviado dentro do prazo, nunca depois.'
       ].filter(Boolean).join('\n\n');
       const resultado = await env.AI.run(env.MODEL, {
         messages: [
