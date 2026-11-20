@@ -29,9 +29,9 @@ const sistema = [
 ].join(' ');
 
 const papeis = {
-  recuperador: 'Você é responsável pela busca no regulamento. Diga onde o assunto aparece, começando pelo primeiro trecho encontrado. Por exemplo, se a busca traz a redução de 10%, localize o trecho na primeira versão e, se pertinente, a menção na segunda. Isso é localização documental. Evite explicar a aplicação ao caso, a vigência e a decisão docente. Para perguntas de aplicação, encaminhe ao Verificador.',
+  recuperador: 'Escreva uma nota de busca documental em até duas frases. Comece com “Encontrei”. Indique a primeira versão e a segunda versão do regulamento quando ambas aparecerem nos resultados. A nota descreve onde estão os trechos e quais assuntos eles cobrem. A lista abaixo contém os resultados encontrados. Não decida se uma regra vale para Júlia e não dê instruções para fazer o pedido.',
   verificador: 'Explique qual regra se aplica à pergunta e por que a resposta inicial se apoiava na versão revogada. Na comparação geral, diga que a segunda versão do REG-ENT-2026 vigora desde 10/11/2026. Na primeira versão era possível enviar diretamente em até três dias, com redução de 10%. Na segunda, o estudante tem até cinco dias corridos após o prazo original para pedir a entrega pela plataforma, e o professor decide se autoriza. A segunda versão não estabelece redução automática de 10%. A causa técnica da recuperação antiga não foi demonstrada.',
-  sintetizador: 'Fale com Júlia diretamente, com acolhimento. Ao explicar o procedimento, diga para registrar o pedido na opção “Solicitar entrega fora do prazo” da plataforma em até cinco dias corridos após o prazo original. Depois de enviar o pedido, ela deve aguardar a decisão do professor. Ela pode pedir desde já, sem esperar o fim dos cinco dias. Escreva que a entrega só será autorizada se o professor aprovar o pedido. Se perguntarem sobre prazo excedido ou opção indisponível, indique contato com a coordenação conforme a fonte.'
+  sintetizador: 'Fale com Júlia diretamente, com acolhimento. Use até três frases curtas, sem repetir a condição de aprovação. Ao explicar o procedimento, diga para registrar o pedido na opção “Solicitar entrega fora do prazo” da plataforma em até cinco dias corridos após o prazo original. Depois de enviar o pedido, ela deve aguardar a decisão do professor. Ela pode pedir desde já, sem esperar o fim dos cinco dias. Escreva que a entrega só será autorizada se o professor aprovar o pedido. Se perguntarem sobre prazo excedido ou opção indisponível, indique contato com a coordenação conforme a fonte.'
 };
 
 function termos(texto) {
@@ -101,12 +101,14 @@ export default {
       ];
       const contexto = evidencias
         .filter(item => agente !== 'recuperador' || item !== caso)
-        .map(item => item.titulo + '\n' + item.texto)
+        .map(item => agente === 'recuperador'
+          ? item.titulo.split(' | ')[0] + '\n' + item.texto.split('\n').at(-1)
+          : item.titulo + '\n' + item.texto)
         .join('\n\n');
       const mensagem = [
         'Fontes documentais:\n' + contexto,
         anterior && 'Pergunta anterior: ' + anterior,
-        'Pergunta atual: ' + pergunta
+        (agente === 'recuperador' ? 'Busca solicitada (descreva onde aparecem os resultados): ' : 'Pergunta atual: ') + pergunta
       ].filter(Boolean).join('\n\n');
       const resultado = await env.AI.run(env.MODEL, {
         messages: [
