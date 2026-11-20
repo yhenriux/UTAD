@@ -102,7 +102,8 @@ export default {
       const contexto = evidencias
         .filter(item => agente !== 'recuperador' || item !== caso)
         .map(item => agente === 'recuperador'
-          ? item.titulo.split(' | ')[0] + '\n' + item.texto.split('\n').at(-1)
+          ? item.titulo.split(' | ')[0].replace(' v1', ', primeira versão').replace(' v2', ', segunda versão')
+            + '\n' + item.texto.split('\n').at(-1).replace(/^\s*-\s*\*\*V[12]-\d:\*\*\s*/, '')
           : item.titulo + '\n' + item.texto)
         .join('\n\n');
       const mensagem = [
