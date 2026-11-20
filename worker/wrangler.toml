@@ -1,0 +1,22 @@
+name = "laboratorio-orientacao-academica-ia"
+main = "index.mjs"
+compatibility_date = "2026-11-20"
+workers_dev = true
+preview_urls = false
+
+[vars]
+SITE_ORIGIN = "https://yhenriux.github.io"
+MODEL = "@cf/ibm-granite/granite-4.0-h-micro"
+
+[ai]
+binding = "AI"
+
+[[ratelimits]]
+name = "LIMITE"
+namespace_id = "20112601"
+simple = { limit = 10, period = 60 }
+
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true

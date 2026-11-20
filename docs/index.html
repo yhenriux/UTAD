@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratório de Orientação Acadêmica com IA</title>
+  <link rel="stylesheet" href="./estilo.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Ir para o conteúdo</a>
+  <header class="topo">
+    <div class="limite">
+      <p class="identidade">AF2 · Interação e Interfaces Avançadas Web</p>
+      <h1>Laboratório de Orientação Acadêmica com IA</h1>
+    </div>
+  </header>
+  <div class="limite percurso">
+    <nav aria-label="Etapas do laboratório">
+      <ol>
+        <li><a href="#caso"><span>1</span>Conhecer o caso</a></li>
+        <li><a href="#recuperador"><span>2</span>Recuperador</a></li>
+        <li><a href="#verificador"><span>3</span>Verificador</a></li>
+        <li><a href="#sintetizador"><span>4</span>Sintetizador</a></li>
+        <li><a href="#decisao"><span>5</span>Decisão humana</a></li>
+      </ol>
+    </nav>
+    <main id="conteudo">
+      <section id="caso" aria-labelledby="titulo-caso">
+        <p class="identidade">Universidade Aurora · Caso fictício ACAD-001</p>
+        <h2 id="titulo-caso" tabindex="-1">Conhecer o caso Júlia</h2>
+        <p>Em 20/11/2026, Júlia perguntou sobre um trabalho de Metodologia cujo prazo venceu em 19/11/2026.</p>
+        <blockquote>Sou a Júlia. Perdi ontem o prazo de entrega do trabalho de Metodologia. Ainda posso entregar?</blockquote>
+        <h3>Resposta inicial da IA no cenário</h3>
+        <blockquote>Sim. O regulamento permite entregar até três dias depois, com desconto de 10% na nota. Basta enviar o trabalho na área de entregas.</blockquote>
+        <p>Investigue qual versão do regulamento sustentou essa resposta e formule uma orientação fundamentada para Júlia.</p>
+        <ul class="links">
+          <li><a href="https://drive.google.com/drive/folders/1HI1YzjHi9-qwlz8h00HQB6rreZPZlutc" target="_blank" rel="noopener">Grimório de Evidências</a></li>
+          <li><a href="https://framevr.io/laboratorio-imersivo-auditoria-ia" target="_blank" rel="noopener">Laboratório no FrameVR</a></li>
+        </ul>
+        <a class="botao" href="#recuperador">Começar a investigação</a>
+      </section>
+      <section id="recuperador" aria-labelledby="titulo-recuperador" hidden>
+        <h2 id="titulo-recuperador" tabindex="-1">Recuperador</h2>
+        <form class="consulta" data-agente="recuperador">
+          <label for="pergunta-recuperador">Pergunta para o Recuperador</label>
+          <textarea id="pergunta-recuperador" name="pergunta" rows="3" maxlength="600" required>Localize os trechos relevantes nas duas versões da REG-ENT-2026.</textarea>
+          <button type="submit">Consultar Recuperador</button>
+          <p class="status" role="status"></p>
+        </form>
+        <div class="resultado" hidden>
+          <h3>Resposta do agente</h3>
+          <p class="resposta"></p>
+          <p class="modelo"></p>
+          <h3>Evidências enviadas ao modelo</h3>
+          <ul class="fontes"></ul>
+        </div>
+        <a href="#verificador" class="seguinte">Continuar para Verificador</a>
+      </section>
+      <section id="verificador" aria-labelledby="titulo-verificador" hidden>
+        <h2 id="titulo-verificador" tabindex="-1">Verificador</h2>
+        <form class="consulta" data-agente="verificador">
+          <label for="pergunta-verificador">Pergunta para o Verificador</label>
+          <textarea id="pergunta-verificador" name="pergunta" rows="3" maxlength="600" required>O que mudou entre a v1 e a v2 e qual versão se aplica ao caso?</textarea>
+          <button type="submit">Consultar Verificador</button>
+          <p class="status" role="status"></p>
+        </form>
+        <div class="resultado" hidden>
+          <h3>Resposta do agente</h3>
+          <p class="resposta"></p>
+          <p class="modelo"></p>
+          <h3>Evidências enviadas ao modelo</h3>
+          <ul class="fontes"></ul>
+        </div>
+        <a href="#sintetizador" class="seguinte">Continuar para Sintetizador</a>
+      </section>
+      <section id="sintetizador" aria-labelledby="titulo-sintetizador" hidden>
+        <h2 id="titulo-sintetizador" tabindex="-1">Sintetizador</h2>
+        <form class="consulta" data-agente="sintetizador">
+          <label for="pergunta-sintetizador">Pergunta para o Sintetizador</label>
+          <textarea id="pergunta-sintetizador" name="pergunta" rows="3" maxlength="600" required>Como Júlia deve solicitar a entrega fora do prazo?</textarea>
+          <button type="submit">Consultar Sintetizador</button>
+          <p class="status" role="status"></p>
+        </form>
+        <div class="resultado" hidden>
+          <h3>Resposta do agente</h3>
+          <p class="resposta"></p>
+          <p class="modelo"></p>
+          <h3>Evidências enviadas ao modelo</h3>
+          <ul class="fontes"></ul>
+        </div>
+        <a href="#decisao" class="seguinte">Continuar para decisão humana</a>
+      </section>
+      <section id="decisao" aria-labelledby="titulo-decisao" hidden>
+        <h2 id="titulo-decisao" tabindex="-1">Decisão humana</h2>
+        <form id="registro">
+          <fieldset>
+            <legend>Alternativa escolhida</legend>
+            <label class="opcao"><input type="radio" name="alternativa" value="A" required><span><strong>A</strong> · Corrigir a resposta da IA.</span></label>
+            <label class="opcao"><input type="radio" name="alternativa" value="B"><span><strong>B</strong> · Corrigir a resposta e investigar por que a IA usou um regulamento desatualizado.</span></label>
+          </fieldset>
+          <label for="justificativa">Justificativa</label>
+          <textarea id="justificativa" name="justificativa" rows="3" required></textarea>
+          <label for="evidencias">Evidências consultadas</label>
+          <textarea id="evidencias" name="evidencias" rows="3" required></textarea>
+          <label for="orientacao">Orientação final para Júlia</label>
+          <textarea id="orientacao" name="orientacao" rows="3" required></textarea>
+          <label for="contribuicoes">Contribuições dos agentes</label>
+          <textarea id="contribuicoes" name="contribuicoes" rows="4" placeholder="Indique o que você aceitou, corrigiu ou rejeitou de cada agente." required></textarea>
+          <button type="submit">Exportar decisão em JSON</button>
+          <p id="exportacao" class="status" role="status"></p>
+        </form>
+        <p><a href="https://discord.com/channels/1573325728571985920/1573325928178655323" target="_blank" rel="noopener">Compartilhar no canal #decisoes</a></p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
